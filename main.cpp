@@ -1,23 +1,38 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
-#include <stack>
+#include <tuple>
+
+#include "genMaxArea.h"
+
 using namespace std;
 int main(void) {
+
 	int rows, collums;
 	cin >> rows; cin >> collums;
 	//Declara uma matriz de entrada mtx para ler a entrada dos caracteres
 	vector<vector<char>> mtx(rows, vector<char>(collums, '-'));
 
-	//Declara uma matriz matrix para salvar o maior valor possivel para coluna ate a linha especificada
-	vector<vector<int>> matrix(rows, vector<int>(collums, 0));
+
 
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < collums; j++) {
 			cin >> mtx[i][j];
 		}
 	}
-	
+	if (collums > rows){
+		vector<vector<char>> t_mtx(collums, vector<char>(rows, '-'));
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < collums; j++) {
+				t_mtx[j][i] = mtx[i][j];
+			}
+		}
+		mtx = t_mtx;
+		int aux = rows;
+		rows = collums; collums = aux;
+	}
+
+	//Declara uma matriz matrix para salvar o maior valor possivel para coluna ate a linha especificada
+	vector<vector<int>> matrix(rows, vector<int>(collums, 0));
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < collums; j++) {
 			if (i == 0) {
@@ -32,81 +47,74 @@ int main(void) {
 			}
 		}
 	}
-	vector<vector<int>> left_matrix(rows, vector<int>(collums, -1));
-	vector<vector<int>> right_matrix(rows, vector<int>(collums, -1));
-	stack<int> limit_stack;
+	
+	//Invoca a funcao que gera a lista das maiores areas por dimensao
+	vector<int> result = genMaxArea(matrix);
 
-	//Preenche a matriz de limites ao lado esquerdo 
-	for (int i = 0; i < rows; i++) {
-		while(!limit_stack.empty()) {
-			limit_stack.pop();
+
+	int n;
+	cin >> n;
+	//	Salva um vetor mesas que é uma quadrupla onde table[x]<0> e a area da mesa mesa x, table[x]<1> e o tamanho do maior lado da mesa, 
+	//table[x]<2> e o tamanho do menor lado da mesa e table[x]<3> e uma flag que assume valor 1 caso o lado de maior tamanho seja a largura. 
+	vector<tuple<int, int, int, bool>> tables(n);
+	for (int i = 0; i < n; i++) {
+		bool flag = 0;
+		int higher, lower;
+		cin >> higher; cin >> lower;
+		if (lower > higher) {
+			int temp = higher;
+			higher = lower; lower = temp;
+			flag = 1;
 		}
-		limit_stack.push(0);
-		left_matrix[i][0] = 0;
+		int area = higher * lower;
+		tables[i] = make_tuple(area, higher, lower, flag);
+	}
+	//Ordena as mesas por area, de forma decrescente
+	sort(tables.begin(), tables.end(), greater<tuple<int, int, int, bool>>());
 
-		for (int j = 1; j < collums; j++) {
-			while (!limit_stack.empty()) {
-				int top = limit_stack.top();
-				if (matrix[i][top] >= matrix[i][j]) {
-					limit_stack.pop();
-					if (limit_stack.empty()) {
-						left_matrix[i][j] = 0;
+	pair<int, int>chosen_table;
+	for (int i = 0; i < tables.size(); i++) {
+		bool already_chosen = 0;
+		int bigger_side = get<1>(tables[i]);
+		int smaller_side = get<2>(tables[i]);
+
+		if (result[bigger_side] > smaller_side) {
+			//Caso a mesa tenha sido rotacionada, inverte os lados
+			if (get<3>(tables[i])) {
+				int temp = get<1>(tables[i]);
+				get<1>(tables[i]) = get<2>(tables[i]);
+				get<2>(tables[i]) = temp;
+				get<3>(tables[i]) = 0;
+			}
+
+			bool end = 0;
+			if (already_chosen) {
+				//Caso ja tenha sido escolhida alguma mesa, compara com a resposta da proxima mesa possivel
+				if (get<0>(tables[i]) == get<0>(tables[i - 1])) {
+					//Caso elas tenham a mesma area, compara o comprimento de cada uma das mesas
+					if (get<2>(tables[i]) > get<2>(tables[i - 1])) {
+						chosen_table.first = get<1>(tables[i]);
+						chosen_table.second = get<2>(tables[i]);
 					}
 				}
 				else {
-					left_matrix[i][j] = top + 1;
-					break;
+					//Caso eles nao tenham a mesma area, quer dizer que a atual mesa escolhida é a otima
+					end = 1;
 				}
 			}
-			limit_stack.push(j);
-		}
-	}
-
-	//Preenche a matriz de limites ao lado direito utilizando a mesma logica
-	for (int i = 0; i < rows; i++) {
-		while (!limit_stack.empty()) {
-			limit_stack.pop();
-		}
-		limit_stack.push(collums-1);
-		right_matrix[i][collums-1] = collums-1;
-
-		for (int j = collums-2; j >= 0 ; j--) {
-			while (!limit_stack.empty()) {
-				int top = limit_stack.top();
-				if (matrix[i][top] >= matrix[i][j]) {
-					limit_stack.pop();
-					if (limit_stack.empty()) {
-						right_matrix[i][j] = 0;
-					}
-				}
-				else {
-					right_matrix[i][j] = top - 1;
-					break;
-				}
+			else {
+				already_chosen = 1;
+				chosen_table.first = get<1>(tables[i]);
+				chosen_table.second = get<2>(tables[i]);
 			}
-			limit_stack.push(j);
+			if (end == 1) {
+				break;
+			}
+			
 		}
 	}
-
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < collums; j++) {
-			cout << matrix[i][j] << '\t';
-		}
-		cout << endl;
-	}
-	cout << endl;
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < collums; j++) {
-			cout << left_matrix[i][j] << '\t';
-		}
-		cout << endl;
-	}
-	cout << endl;
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < collums; j++) {
-			cout << right_matrix[i][j] << '\t';
-		}
-		cout << endl;
-	}
+	cout << chosen_table.first << " " << chosen_table.second;
+	return 0;
+	
 }
 
