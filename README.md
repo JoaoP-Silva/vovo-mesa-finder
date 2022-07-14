@@ -2,7 +2,7 @@
 A partir de uma lista de retângulos, encontrar o retângulo de maior área que pode ser inserido em um mapa utilizando programação dinâmica.
 
 # Sobre o projeto
-vovo-mesa-finder é um projeto que trata da seguinte situação hipotética: sua avó quer reformar sua humilde casa e dispôe de uma lista de mesas retangulares que disse que pensa em adquirir, e você como um bom neto quer que sua avó tenha em sua casa a maior mesa possível. Dado um mapa binário que representa a sala de sua avó, separado em espaços vazios (possíveis de ocupar a mesa) e espaços já ocupados, qual a mesa de maior área, dentre as que foram listadas, que pode ser colocada na sala da vó?
+vovo-mesa-finder é um projeto que trata da seguinte situação hipotética: sua avó quer reformar sua humilde casa e dispõe de uma lista de mesas retangulares que disse que pensa em adquirir, e você como um bom neto quer que sua avó tenha em sua casa a maior mesa possível. Dado um mapa binário que representa a sala de sua avó, separado em espaços vazios (possíveis de ocupar a mesa) e espaços já ocupados, qual a mesa de maior área, dentre as que foram listadas, que pode ser colocada na sala da vó?
 # Solução pensada
 
 1) **Modelagem**
