@@ -83,9 +83,9 @@ int main(void) {
 
 	//Ordena as mesas por area, de forma decrescente
 	sort(tables.begin(), tables.end(), desc);
-	for (int i = 0; i < tables.size(); i++) {
+	/*for (int i = 0; i < tables.size(); i++) {
 		cout << get<0>(tables[i]) << " " << get<1>(tables[i]) << " " << get<2>(tables[i]) << "\n";
-	}
+	}*/
 
 
 	bool already_chosen = 0;
